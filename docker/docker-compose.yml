@@ -1,0 +1,54 @@
+# Dev convenience: build the image once, then live-rebuild+serve a site
+# without installing Python or lanyon's dependencies locally.
+#
+# Run from this directory - relative paths below, and any SRC/OUT
+# override, resolve against here (docker/), so they're one level up
+# from the repo root (e.g. ../my-site, not ./my-site):
+#
+#   cd docker && docker compose up --build
+#
+# Serves http://localhost:8000/ and rebuilds whenever a file under SRC
+# changes. Override the source dir and port with an .env file or:
+#
+#   SRC=../my-site PORT=3000 docker compose up
+#
+# For a one-shot build instead of watch+serve:
+#
+#   docker compose run --rm lanyon -i /site/src -o /site/build
+#
+# The incremental-build cache lives at /var/cache/lanyon/cache.json inside
+# the container by default (via --cache-file below) rather than in SRCDIR,
+# so it's ephemeral: it disappears with the container and SRC can stay
+# mounted read-only. To preserve it across `docker compose down`/`up`
+# instead - e.g. so a long content tree doesn't do a full rebuild every
+# time you restart - uncomment the `lanyon-cache` volume in both places
+# below.
+
+services:
+  lanyon:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: lanyon:dev
+    volumes:
+      - ${SRC:-../example/demo-site}:/site/src:ro
+      - ${OUT:-../build}:/site/build
+      # - lanyon-cache:/var/cache/lanyon
+    ports:
+      - "${PORT:-8000}:8000"
+    command:
+      - "-i"
+      - "/site/src"
+      - "-o"
+      - "/site/build"
+      - "-w"
+      - "-s"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--cache-file"
+      - "/var/cache/lanyon/cache.json"
+
+# volumes:
+#   lanyon-cache:

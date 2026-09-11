@@ -1,0 +1,9 @@
+.git
+.gitignore
+build/
+dist/
+*.spec
+.build-venv/
+__pycache__/
+*.pyc
+.lanyon-cache.json
