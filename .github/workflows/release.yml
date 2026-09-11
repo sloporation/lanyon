@@ -1,18 +1,19 @@
 name: Release
 
-# Fires on version tags (v1.2.3) and does two independent things:
+# Fires on version tags (1.2.3, no v prefix) and does two independent
+# things:
 #   1. builds the single-file `lanyon` binary for linux/amd64 and
 #      linux/arm64 with PyInstaller and attaches both to a GitHub Release
 #   2. builds and pushes a multi-arch (amd64+arm64) runtime image to
 #      ghcr.io/<owner>/<repo>, using docker/Dockerfile as-is
 #
 # Tag and push a release with:
-#   git tag v0.1.0 && git push origin v0.1.0
+#   git tag 0.1.0 && git push origin 0.1.0
 
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "*.*.*"
 
 permissions:
   contents: write
