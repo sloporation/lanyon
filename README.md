@@ -203,6 +203,28 @@ Windows) — no cross-compiling — and startup is a touch slower than a true
 compiled binary. If that startup cost ever matters, Nuitka is the drop-in
 alternative later; nothing in the code depends on the packaging choice.
 
+## Releases
+
+Pushing a `vX.Y.Z` tag triggers `.github/workflows/release.yml`, which:
+
+- builds the `lanyon` binary for linux/amd64 and linux/arm64 with
+  PyInstaller and attaches both (plus a `checksums.txt`) to a GitHub
+  Release
+- builds and pushes a multi-arch (amd64+arm64) runtime image to
+  `ghcr.io/sloporation/lanyon`, from `docker/Dockerfile` as-is
+
+```
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Pull the published image directly, no build step required:
+
+```
+docker run --rm -v "$PWD/example/demo-site:/site/src:ro" \
+  -v "$PWD/build:/site/build" ghcr.io/sloporation/lanyon -i /site/src -o /site/build
+```
+
 ## Known gaps / not yet built
 
 - No `_posts`/collections, no pagination.
