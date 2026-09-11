@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Builds a single-file `lanyon` binary for the current OS/arch using PyInstaller.
 # Run this separately on each target platform (Linux, macOS, Windows) -
-# PyInstaller does not cross-compile.
+# PyInstaller does not cross-compile. Safe to invoke from anywhere
+# (./scripts/build.sh or from within scripts/) - it cds to the repo root
+# first, since requirements.txt/src/dist all live there.
 set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 python3 -m venv .build-venv
 source .build-venv/bin/activate

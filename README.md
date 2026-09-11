@@ -139,11 +139,12 @@ src/
     watch.py        # polls srcdir and rebuilds on change
     serve.py        # dev HTTP server for builddir
   lanyon_entry.py    # PyInstaller entry point
-build.sh            # produces the single-file `lanyon` binary
+scripts/
+  build.sh          # produces the single-file `lanyon` binary
 docker/
   Dockerfile              # reproducible PyInstaller build, minimal runtime image
   Dockerfile.dockerignore # build-context excludes for the above
-  docker-compose.yml      # incremental/watch/dev-server workflow
+docker-compose.yml  # incremental/watch/dev-server workflow
 example/demo-site/  # minimal working example (config, layout, include,
                     # front-matter page, and a plain .php/.txt file)
 ```
@@ -158,7 +159,7 @@ python3 -m lanyon.cli -i example/demo-site -o /tmp/out
 ## Building the single-file binary
 
 ```
-./build.sh
+./scripts/build.sh
 sudo cp dist/lanyon /usr/bin/lanyon
 ```
 
@@ -178,15 +179,14 @@ docker run --rm -v "$PWD/example/demo-site:/site/src:ro" \
 The final image contains only the compiled binary (no Python, no pip
 packages), so running it is a faithful test of what end users get.
 
-For local dev — live rebuild + a dev server, no local install at all, run
-from `docker/` (relative paths and SRC/OUT overrides resolve from there):
+For local dev — live rebuild + a dev server, no local install at all:
 
 ```
-cd docker && docker compose up --build
+docker compose up --build
 ```
 
 serves `http://localhost:8000/`, watching `example/demo-site` by default.
-Point it at your own site with `SRC=../my-site docker compose up`, or run a
+Point it at your own site with `SRC=./my-site docker compose up`, or run a
 one-shot build with `docker compose run --rm lanyon -i /site/src -o /site/build`.
 
 SRCDIR is mounted read-only and the incremental cache lives inside the
@@ -202,6 +202,28 @@ end user." Trade-off: it must be run once per target OS/arch (Linux, macOS,
 Windows) — no cross-compiling — and startup is a touch slower than a true
 compiled binary. If that startup cost ever matters, Nuitka is the drop-in
 alternative later; nothing in the code depends on the packaging choice.
+
+## Releases
+
+Pushing a `vX.Y.Z` tag triggers `.github/workflows/release.yml`, which:
+
+- builds the `lanyon` binary for linux/amd64 and linux/arm64 with
+  PyInstaller and attaches both (plus a `checksums.txt`) to a GitHub
+  Release
+- builds and pushes a multi-arch (amd64+arm64) runtime image to
+  `ghcr.io/sloporation/lanyon`, from `docker/Dockerfile` as-is
+
+```
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Pull the published image directly, no build step required:
+
+```
+docker run --rm -v "$PWD/example/demo-site:/site/src:ro" \
+  -v "$PWD/build:/site/build" ghcr.io/sloporation/lanyon -i /site/src -o /site/build
+```
 
 ## Known gaps / not yet built
 

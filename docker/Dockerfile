@@ -2,7 +2,7 @@
 #
 # Two-stage build:
 #   builder  - installs deps and uses PyInstaller to produce the same
-#              single-file `lanyon` binary that `build.sh` builds on bare
+#              single-file `lanyon` binary that `scripts/build.sh` builds on bare
 #              metal, so building in Docker is a reproducible stand-in for
 #              that process (and a way to produce a Linux binary without
 #              installing Python/PyInstaller locally).
@@ -17,7 +17,7 @@
 # Build context is the repo root (run these commands from there), since
 # this Dockerfile COPYs src/ paths relative to the top level, not ./docker.
 #
-# For the incremental/watch/dev-server workflow, see docker/docker-compose.yml.
+# For the incremental/watch/dev-server workflow, see docker-compose.yml (repo root).
 #
 # Both stages build FROM the same debian:bookworm-slim base (not the
 # upstream python image) specifically so the builder's glibc always matches
