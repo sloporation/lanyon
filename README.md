@@ -205,7 +205,7 @@ alternative later; nothing in the code depends on the packaging choice.
 
 ## Releases
 
-Pushing a `vX.Y.Z` tag triggers `.github/workflows/release.yml`, which:
+Pushing an `X.Y.Z` tag (no `v` prefix) triggers `.github/workflows/release.yml`, which:
 
 - builds the `lanyon` binary for linux/amd64 and linux/arm64 with
   PyInstaller and attaches both (plus a `checksums.txt`) to a GitHub
@@ -214,8 +214,8 @@ Pushing a `vX.Y.Z` tag triggers `.github/workflows/release.yml`, which:
   `ghcr.io/sloporation/lanyon`, from `docker/Dockerfile` as-is
 
 ```
-git tag v0.1.0
-git push origin v0.1.0
+git tag 0.1.0
+git push origin 0.1.0
 ```
 
 Pull the published image directly, no build step required:
