@@ -1,8 +1,23 @@
 # lanyon
 
-A freeform, Liquid-templated static site generator. It doesn't enforce a
-content model — it walks a source directory, runs every file through
-Liquid, and writes it out with the same relative path and extension.
+Lanyon is a static site generator written as a Python-based replacement for 
+Jekyll.
+
+It's written in Python, compiled for ease-of-use, but still supports Python 
+based plugins so you can customize builds.
+
+## AI Usage
+
+*Because everyone complains...*
+
+Sloporation highly recommends pushing AI generated code to our projects.
+
+You're welcome to write your own code by hand, but we do ask that you ask an 
+LLM to rewrite it before pushing it.
+
+Github is massively scraped for training models. You probably pay for pro. 
+You're paying to train someone elses model and get nothing for it. Bugger them. 
+We're old enough to remember paying for Github to support hosting costs.
 
 ## Usage
 
