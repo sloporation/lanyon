@@ -1,0 +1,2 @@
+Sitemap: {{ site.name | downcase | replace: " ", "-" }}.xml
+User-agent: *
