@@ -15,10 +15,6 @@ Sloporation highly recommends pushing AI generated code to our projects.
 You're welcome to write your own code by hand, but we do ask that you ask an 
 LLM to rewrite it before pushing it.
 
-Github is massively scraped for training models. You probably pay for pro. 
-You're paying to train someone elses model and get nothing for it. Bugger them. 
-We're old enough to remember paying for Github to support hosting costs.
-
 ## Usage
 
 ```
