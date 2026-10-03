@@ -12,10 +12,9 @@
 #
 #   docker compose run --rm lanyon -i /site/src -o /site/build
 #
-# The incremental-build cache lives at /var/cache/lanyon/cache.json inside
-# the container by default (via --cache-file below) rather than in SRCDIR,
-# so it's ephemeral: it disappears with the container and SRC can stay
-# mounted read-only. To preserve it across `docker compose down`/`up`
+# The incremental-build cache lives under /tmp/lanyon/ inside the container
+# (lanyon's default) rather than in SRCDIR, so it's ephemeral: it disappears
+# with the container and SRC can stay mounted read-only. To preserve it across `docker compose down`/`up`
 # instead - e.g. so a long content tree doesn't do a full rebuild every
 # time you restart - uncomment the `lanyon-cache` volume in both places
 # below.
@@ -29,7 +28,7 @@ services:
     volumes:
       - ${SRC:-./example/demo-site}:/site/src:ro
       - ${OUT:-./build}:/site/build
-      # - lanyon-cache:/var/cache/lanyon
+      # - lanyon-cache:/tmp/lanyon
     ports:
       - "${PORT:-8000}:8000"
     command:
@@ -43,8 +42,6 @@ services:
       - "0.0.0.0"
       - "--port"
       - "8000"
-      - "--cache-file"
-      - "/var/cache/lanyon/cache.json"
 
 # volumes:
 #   lanyon-cache:

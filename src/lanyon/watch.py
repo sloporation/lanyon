@@ -2,7 +2,7 @@
 import time
 from pathlib import Path
 
-from .site import build_site, default_cache_path
+from .site import build_site, resolve_cache_path
 
 
 def _snapshot(src_root: Path, cache_path: Path) -> dict:
@@ -12,7 +12,7 @@ def _snapshot(src_root: Path, cache_path: Path) -> dict:
             continue
         if path.resolve() == cache_path:
             # Every build (incremental=True) rewrites the cache file, so
-            # including it here (when it happens to live under srcdir)
+            # including it here (when --cache-file points under srcdir)
             # would make the watcher detect its own writes as a source
             # change and rebuild forever.
             continue
@@ -31,7 +31,7 @@ def watch_and_build(src_dir: str, out_dir: str, poll_interval: float = 0.5, cach
     matters for a tool that ships as a single self-contained binary.
     """
     src_root = Path(src_dir).resolve()
-    cache_path = Path(cache_file).resolve() if cache_file else default_cache_path(src_root)
+    cache_path = resolve_cache_path(src_root, Path(out_dir).resolve(), cache_file)
 
     build_site(src_dir, out_dir, incremental=True, cache_file=cache_file)
     last_state = _snapshot(src_root, cache_path)

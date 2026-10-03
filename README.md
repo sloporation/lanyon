@@ -35,13 +35,12 @@ full rebuild, since lanyon doesn't track which pages depend on which
 layout/include. Without `-I`, every run is a full rebuild (the original
 behaviour).
 
-By default the cache lives at `srcdir/.lanyon-cache.json` (itself excluded
-from the build, like any dotfile), so it persists on disk between runs
-same as everything else in srcdir. Override its location with
-`--cache-file PATH` - point it outside srcdir to keep srcdir untouched
-(e.g. so it can stay read-only, or so the cache is ephemeral by default
-in a container), or at a path you deliberately mount/back up to preserve
-it on purpose.
+By default the cache lives under the system temp dir
+(`$TMPDIR/lanyon/cache-<hash>.json`, keyed on the srcdir and builddir
+paths), so nothing is written to srcdir and it can stay read-only. If the
+cache goes missing (reboot, tmp cleaner, fresh container) the next
+incremental build is just a full rebuild. Override its location with
+`--cache-file PATH` to keep it somewhere you deliberately mount/back up.
 
 ### Watch mode
 
@@ -190,7 +189,7 @@ Point it at your own site with `SRC=./my-site docker compose up`, or run a
 one-shot build with `docker compose run --rm lanyon -i /site/src -o /site/build`.
 
 SRCDIR is mounted read-only and the incremental cache lives inside the
-container at `/var/cache/lanyon/cache.json` (not on a volume), so by
+container under `/tmp/lanyon/` (not on a volume), so by
 default it's ephemeral - a fresh container starts with a full rebuild, and
 nothing lanyon-related is written to your source tree. To keep the cache
 warm across `docker compose down`/`up` instead, uncomment the
