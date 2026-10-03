@@ -1,6 +1,8 @@
 """Core build logic: walks srcdir, applies Liquid templating, layouts, includes."""
+import hashlib
 import json
 import shutil
+import tempfile
 from pathlib import Path
 
 from liquid import Environment
@@ -21,7 +23,6 @@ from .plugins import (
 LAYOUTS_DIR_NAME = "_layouts"
 INCLUDES_DIR_NAME = "_includes"
 CONFIG_FILE_NAME = "_config.yml"
-CACHE_FILE_NAME = ".lanyon-cache.json"
 
 MAX_LAYOUT_DEPTH = 10
 
@@ -30,9 +31,7 @@ def is_excluded(path: Path, src_root: Path) -> bool:
     """Anything under a dir/file starting with `_` or `.` is not published directly.
 
     This is how _config.yml, _layouts/, _includes/, and any user-defined
-    "private" folders (e.g. _drafts/) stay out of the output. It also keeps
-    lanyon's own incremental-build cache file (.lanyon-cache.json) out of the
-    build.
+    "private" folders (e.g. _drafts/) stay out of the output.
     """
     for part in path.relative_to(src_root).parts:
         if part.startswith("_") or part.startswith("."):
@@ -85,8 +84,21 @@ def apply_layouts(env: Environment, layouts_dir: Path, content: str, layout_name
     return content
 
 
-def default_cache_path(src_root: Path) -> Path:
-    return src_root / CACHE_FILE_NAME
+def default_cache_path(src_root: Path, out_root: Path) -> Path:
+    """Per-(srcdir, builddir) cache file under the system temp dir.
+
+    The cache only records what's already been written to builddir, so
+    losing it (reboot, tmp cleaner, fresh container) just means the next
+    incremental build is a full one. Keeping it out of srcdir means srcdir
+    can be read-only, and keying on both paths means two sites - or one
+    site built into two builddirs - never share a cache.
+    """
+    key = hashlib.sha256(f"{src_root}\0{out_root}".encode("utf-8")).hexdigest()[:16]
+    return Path(tempfile.gettempdir()) / "lanyon" / f"cache-{key}.json"
+
+
+def resolve_cache_path(src_root: Path, out_root: Path, cache_file: str | None) -> Path:
+    return Path(cache_file).resolve() if cache_file else default_cache_path(src_root, out_root)
 
 
 def _load_cache(cache_path: Path) -> dict:
@@ -141,9 +153,9 @@ def build_site(src_dir: str, out_dir: str, incremental: bool = False, cache_file
     re-rendered on every run - this is the original, simplest-possible
     behaviour.
 
-    With incremental=True, lanyon keeps a small cache
-    (`<srcdir>/.lanyon-cache.json`, itself excluded from the build) of each
-    source file's mtime/size. On the next incremental build, only files that
+    With incremental=True, lanyon keeps a small cache (by default under the
+    system temp dir - see default_cache_path; override with cache_file) of
+    each source file's mtime/size. On the next incremental build, only files that
     are new or changed since the cache was written are re-rendered, and
     files removed from the source tree are removed from the output. Any
     change to `_config.yml`, `_layouts/`, `_includes/`, or `_plugins/` forces
@@ -161,7 +173,7 @@ def build_site(src_dir: str, out_dir: str, incremental: bool = False, cache_file
 
     out_root.mkdir(parents=True, exist_ok=True)
 
-    cache_path = Path(cache_file).resolve() if cache_file else default_cache_path(src_root)
+    cache_path = resolve_cache_path(src_root, out_root, cache_file)
 
     plugins = load_plugins(src_root)
 

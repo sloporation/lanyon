@@ -32,10 +32,10 @@ def main() -> None:
     parser.add_argument(
         "--cache-file", metavar="PATH",
         help=(
-            "where the incremental-build cache lives (default: SRCDIR/.lanyon-cache.json). "
-            "Point this at a path outside SRCDIR for a cache that's ephemeral by default "
-            "(e.g. lives only inside a container), or at a path you mount/back up to "
-            "preserve it across runs."
+            "where the incremental-build cache lives (default: a per-SRCDIR/BUILDDIR "
+            "file under the system temp dir, e.g. /tmp/lanyon/cache-<hash>.json). "
+            "Point this at a path you mount/back up to preserve it across reboots "
+            "or containers."
         ),
     )
     parser.add_argument(
